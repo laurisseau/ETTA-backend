@@ -67,9 +67,9 @@ public class SecurityFilter {
                             .requestMatchers("/api/permitAll/**",
                                     "/api/auth/**")
                             .permitAll()
-                            .requestMatchers("/api/admin/**").hasAuthority("Admin")
-                            .requestMatchers("/api/educator/**").hasAuthority("Educator")
-                            .requestMatchers("/api/user/**", "/api/payment/**").hasAuthority("USER")
+                            .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/api/educator/**").hasAuthority("ROLE_EDUCATOR")
+                            .requestMatchers("/api/user/**", "/api/payment/**").hasAuthority("ROLE_USER")
                             .anyRequest().authenticated()
                     )
                     .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

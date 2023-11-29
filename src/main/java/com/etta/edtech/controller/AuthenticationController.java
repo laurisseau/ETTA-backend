@@ -1,6 +1,5 @@
 package com.etta.edtech.controller;
 
-import com.etta.edtech.model.AwsAuthResult;
 import com.etta.edtech.model.User;
 import com.etta.edtech.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +16,12 @@ public class AuthenticationController {
     public ResponseEntity<String> signUp(@RequestBody User user) {
 
         String email = user.getEmail();
-        String userName = user.getUsername();
+        String username = user.getUsername();
         String password = user.getPassword();
         String role = user.getRole();
 
         return authenticationService.signUp(email, role,
-                userName,  password);
+                username,  password);
     }
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody User user) {

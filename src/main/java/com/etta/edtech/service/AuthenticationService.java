@@ -1,7 +1,7 @@
 package com.etta.edtech.service;
 
 import com.etta.edtech.config.AuthenticationConfig;
-import com.etta.edtech.model.AwsAuthResult;
+import com.etta.edtech.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class AuthenticationService {
     // aws find user
     // handle error
     // for later autherization
-    public AwsAuthResult findUser(String accessToken) {
+    public User findUser(String accessToken) {
 
         try {
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
@@ -47,19 +47,20 @@ public class AuthenticationService {
             String sub = getUserAttribute(userAttributes, "sub");
             String preferredUsername = getUserAttribute(userAttributes, "preferred_username");
             String email = getUserAttribute(userAttributes, "email");
-            String role = getUserAttribute(userAttributes, "role");
+            String role = getUserAttribute(userAttributes, "custom:role");
 
-            AwsAuthResult userDetails = new AwsAuthResult();
+
+            User userDetails = new User();
             userDetails.setAccessToken(accessToken);
             userDetails.setSub(sub);
             userDetails.setEmail(email);
-            userDetails.setPreferredUsername(preferredUsername);
+            userDetails.setUsername(preferredUsername);
             userDetails.setRole(role);
 
 
             return userDetails;
         } catch (CognitoIdentityProviderException e) {
-            AwsAuthResult errorResult = new AwsAuthResult();
+            User errorResult = new User();
             errorResult.setError(e.awsErrorDetails().errorMessage());
             return errorResult;
         }
@@ -73,7 +74,7 @@ public class AuthenticationService {
                 .findFirst()
                 .orElse(null);
     }
-    public ResponseEntity<String> signUp(String email, String userName, String role,
+    public ResponseEntity<String> signUp(String email, String role, String username,
                                          String password) {
 
         CognitoIdentityProviderClient identityProviderClient = CognitoIdentityProviderClient.builder()
@@ -88,12 +89,12 @@ public class AuthenticationService {
 
         AttributeType attributeTypeUserName = AttributeType.builder()
                 .name("preferred_username")
-                .value(userName)
+                .value(username)
                 .build();
 
         AttributeType attributeTypeRole = AttributeType.builder()
                 .name("custom:role")
-                .value(userName)
+                .value(role)
                 .build();
 
         List<AttributeType> attrs = new ArrayList<>();
@@ -145,7 +146,7 @@ public class AuthenticationService {
 
             AuthenticationResultType authenticationResult = identityProviderClient.initiateAuth(authRequest).authenticationResult();
 
-            AwsAuthResult userDetails = findUser(authenticationResult.accessToken());
+            User userDetails = findUser(authenticationResult.accessToken());
             //authenticationResult.idToken();
 
             return ResponseEntity.ok(userDetails);

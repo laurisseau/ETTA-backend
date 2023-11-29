@@ -1,13 +1,12 @@
 package com.etta.edtech.security;
 
-import com.etta.edtech.model.AwsAuthResult;
+import com.etta.edtech.model.User;
 import com.etta.edtech.service.AuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,48 +41,42 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwtToken = authHeader.substring(7);
-
-
+        String accessToken = authHeader.substring(7);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            AwsAuthResult userDetails = authenticationService.findUser(jwtToken);
+            User userDetails = authenticationService.findUser(accessToken);
+            //Educator educatorDetails = authenticationService.findEducator(accessToken);
 
-                if (userDetails != null) {
+            if (userDetails != null) {
                     //set a roles attribute in aws-cognito for role so i can use userDetails.role
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    System.out.println(userDetails);
                 }
 
         }
-
-        /*
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("User"))) {
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
 
-            authorities.add(new SimpleGrantedAuthority("User"));
-
-        } else if (authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("Educator"))) {
-
-            authorities.add(new SimpleGrantedAuthority("Educator"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         } else if (authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"))) {
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_EDUCATOR"))) {
 
-            authorities.add(new SimpleGrantedAuthority("ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_EDUCATOR"));
+
+        } else if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         }
-
-        */
 
 
         filterChain.doFilter(request,response);
