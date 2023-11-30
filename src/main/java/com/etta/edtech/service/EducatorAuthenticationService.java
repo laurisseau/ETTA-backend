@@ -1,6 +1,7 @@
 package com.etta.edtech.service;
 
 import com.etta.edtech.config.AuthenticationConfig;
+import com.etta.edtech.model.Educator;
 import com.etta.edtech.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,9 @@ import java.util.Map;
 
 @Service
 @AllArgsConstructor
-public class AuthenticationService {
-
+public class EducatorAuthenticationService {
     private final AuthenticationConfig authenticationConfig;
-
-    // aws find user
-    // handle error
-    // for later autherization
-    public User findUser(String accessToken) {
+    public Educator findEducator(String accessToken) {
 
         try {
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
@@ -42,33 +38,31 @@ public class AuthenticationService {
                     .accessToken(accessToken)
                     .build());
 
-            // Extract specific user attributes
-            List<AttributeType> userAttributes = response.userAttributes();
-            String sub = getUserAttribute(userAttributes, "sub");
-            String preferredUsername = getUserAttribute(userAttributes, "preferred_username");
-            String email = getUserAttribute(userAttributes, "email");
-            String role = getUserAttribute(userAttributes, "custom:role");
+            // Extract specific educator attributes
+            List<AttributeType> educatorAttributes = response.userAttributes();
+            String sub = getEducatorAttribute(educatorAttributes, "sub");
+            String preferredUsername = getEducatorAttribute(educatorAttributes, "preferred_username");
+            String email = getEducatorAttribute(educatorAttributes, "email");
+            String role = getEducatorAttribute(educatorAttributes, "custom:role");
 
 
-            User userDetails = new User();
-            userDetails.setAccessToken(accessToken);
-            userDetails.setSub(sub);
-            userDetails.setEmail(email);
-            userDetails.setUsername(preferredUsername);
-            userDetails.setRole(role);
+            Educator educatorDetails = new Educator();
+            educatorDetails.setAccessToken(accessToken);
+            educatorDetails.setSub(sub);
+            educatorDetails.setEmail(email);
+            educatorDetails.setUsername(preferredUsername);
+            educatorDetails.setRole(role);
 
 
-            return userDetails;
+            return educatorDetails;
         } catch (CognitoIdentityProviderException e) {
-            User errorResult = new User();
+            Educator errorResult = new Educator();
             errorResult.setError(e.awsErrorDetails().errorMessage());
             return errorResult;
         }
     }
-
-    // Helper method to get a user attribute value by name
-    private String getUserAttribute(List<AttributeType> userAttributes, String attributeName) {
-        return userAttributes.stream()
+    private String getEducatorAttribute(List<AttributeType> educatorAttributes, String attributeName) {
+        return educatorAttributes.stream()
                 .filter(attribute -> attributeName.equals(attribute.name()))
                 .map(AttributeType::value)
                 .findFirst()
@@ -108,13 +102,14 @@ public class AuthenticationService {
             SignUpRequest signUpRequest = SignUpRequest.builder()
                     .userAttributes(attrs)
                     .username(email)
-                    .clientId(authenticationConfig.getClientId())
+                    .clientId(authenticationConfig.getEducatorClientId())
                     .password(password)
                     .build();
 
+
             identityProviderClient.signUp(signUpRequest);
 
-            return ResponseEntity.ok("User has been signed up");
+            return ResponseEntity.ok("Educator has been signed up");
 
         }catch (CognitoIdentityProviderException e) {
             return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
@@ -139,17 +134,17 @@ public class AuthenticationService {
                     .build();
 
             InitiateAuthRequest authRequest = InitiateAuthRequest.builder()
-                    .clientId(authenticationConfig.getClientId())
+                    .clientId(authenticationConfig.getEducatorClientId())
                     .authParameters(authParameters)
                     .authFlow(AuthFlowType.USER_PASSWORD_AUTH)
                     .build();
 
             AuthenticationResultType authenticationResult = identityProviderClient.initiateAuth(authRequest).authenticationResult();
 
-            User userDetails = findUser(authenticationResult.accessToken());
+            Educator educatorDetails = findEducator(authenticationResult.accessToken());
             //authenticationResult.idToken();
 
-            return ResponseEntity.ok(userDetails);
+            return ResponseEntity.ok(educatorDetails);
 
         } catch(CognitoIdentityProviderException e) {
             String errorMessage = e.awsErrorDetails().errorMessage();
@@ -170,7 +165,7 @@ public class AuthenticationService {
 
 
             ForgotPasswordRequest forgotPasswordRequest = ForgotPasswordRequest.builder()
-                    .clientId(authenticationConfig.getClientId())
+                    .clientId(authenticationConfig.getEducatorClientId())
                     .username(email)
                     .build();
 
@@ -195,7 +190,7 @@ public class AuthenticationService {
                     .build();
 
             ConfirmForgotPasswordRequest confirmForgotPasswordRequest = ConfirmForgotPasswordRequest.builder()
-                    .clientId(authenticationConfig.getClientId())
+                    .clientId(authenticationConfig.getEducatorClientId())
                     .username(email)
                     .confirmationCode(resetConfirmationCode)
                     .password(newPassword)
@@ -209,6 +204,35 @@ public class AuthenticationService {
         }
     }
 
+
+    public ResponseEntity<Object> updateProfile(String accessToken, String email, String username) {
+        try{
+            AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
+            Region awsRegion = Region.of("us-east-1");
+
+            CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.builder()
+                    .region(awsRegion)
+                    .credentialsProvider(() -> awsCredentials)
+                    .build();
+
+            UpdateUserAttributesRequest updateEducatorAttributesRequest = UpdateUserAttributesRequest.builder()
+                    .accessToken(accessToken)
+                    .userAttributes(
+                            AttributeType.builder().name("email").value(email).build(),
+                            AttributeType.builder().name("preferred_username").value(username).build()
+                    )
+                    .build();
+
+            cognitoClient.updateUserAttributes(updateEducatorAttributesRequest);
+
+            Educator educatorDetails = findEducator(accessToken);
+
+            return ResponseEntity.ok(educatorDetails);
+        }catch(CognitoIdentityProviderException e){
+            String errorMessage = e.awsErrorDetails().errorMessage();
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+    }
 
 
 }

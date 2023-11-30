@@ -1,5 +1,6 @@
 package com.etta.edtech.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,32 +16,24 @@ import java.util.Collections;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AwsAuthResult implements UserDetails {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Educator implements UserDetails {
     private String sub;
-    private String preferredUsername;
     private String email;
+    private String username;
     private String role;
     private String accessToken;
+    private String password;
+    private String resetPassword;
+    private String resetConfirmationCode;
     private String error;
-    public AwsAuthResult(){
+    public Educator(){
 
     }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+role));
     }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return null;
-    }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

@@ -1,29 +1,24 @@
 package com.etta.edtech.controller;
 
 import com.etta.edtech.model.User;
-import com.etta.edtech.service.UserAuthenticationService;
+import com.etta.edtech.service.EducatorAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/educator")
 @RequiredArgsConstructor
-public class UserController {
+public class EducatorController {
 
-    private final UserAuthenticationService userAuthenticationService;
-    @GetMapping("/get")
-    public ResponseEntity<String> simpleGet() {
-        return ResponseEntity.ok("Im a user");
-    }
-
+    private final EducatorAuthenticationService educatorAuthenticationService;
     @PostMapping("/updateProfile")
     public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody User user) {
         String accessToken = extractAccessToken(authorizationHeader);
         String email = user.getEmail();
         String username = user.getUsername();
-        return userAuthenticationService.updateProfile(accessToken, email, username);
+        return educatorAuthenticationService.updateProfile(accessToken, email, username);
     }
 
     private String extractAccessToken(String authorizationHeader) {
@@ -35,5 +30,4 @@ public class UserController {
             throw new IllegalArgumentException("Invalid Authorization header");
         }
     }
-
 }

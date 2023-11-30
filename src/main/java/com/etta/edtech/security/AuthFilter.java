@@ -1,7 +1,9 @@
 package com.etta.edtech.security;
 
+import com.etta.edtech.model.Educator;
 import com.etta.edtech.model.User;
-import com.etta.edtech.service.AuthenticationService;
+import com.etta.edtech.service.EducatorAuthenticationService;
+import com.etta.edtech.service.UserAuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthFilter extends OncePerRequestFilter {
 
-    private final AuthenticationService authenticationService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final EducatorAuthenticationService educatorAuthenticationService;
 
     @Override
     protected void doFilterInternal(
@@ -45,15 +48,20 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User userDetails = authenticationService.findUser(accessToken);
-            //Educator educatorDetails = authenticationService.findEducator(accessToken);
+            User userDetails = userAuthenticationService.findUser(accessToken);
+            Educator educatorDetails = educatorAuthenticationService.findEducator(accessToken);
 
             if (userDetails != null) {
                     //set a roles attribute in aws-cognito for role so i can use userDetails.role
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+            }else if(educatorDetails != null){
+                //set a roles attribute in aws-cognito for role so i can use educatorDetails.role
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(educatorDetails, null, educatorDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
 
         }
 
