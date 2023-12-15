@@ -24,12 +24,13 @@ public class CompilerController {
 
     @PostMapping("/compiler")
     public String compiler(@RequestBody Compiler compiler) throws InterruptedException, ExecutionException {
-        compiler.setLanguage("nodejs");
+        //compiler.setLanguage("nodejs");
         compiler.setClientId("16ed8bf5307927a66d64cbc90685cb91");
         compiler.setClientSecret("ad9fde873027f087038f1167b64b10b1aaa861b463b17e46bf86a29234436b0");
         compiler.setVersionIndex("0");
         String code = compiler.getCode();
-
+        String language = compiler.getLanguage();
+        compiler.setLanguage(language);
         String apiUrl = "https://api.jdoodle.com/v1/execute";
 
         String input = String.format(

@@ -141,7 +141,7 @@ public class UserAuthenticationService {
             AuthenticationResultType authenticationResult = identityProviderClient.initiateAuth(authRequest).authenticationResult();
 
             User userDetails = findUser(authenticationResult.accessToken());
-            //authenticationResult.idToken();
+
 
             return ResponseEntity.ok(userDetails);
 

@@ -1,6 +1,8 @@
 package com.etta.edtech.controller;
 
+import com.etta.edtech.model.Course;
 import com.etta.edtech.model.User;
+import com.etta.edtech.service.CourseService;
 import com.etta.edtech.service.EducatorAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,13 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class EducatorController {
 
     private final EducatorAuthenticationService educatorAuthenticationService;
-    @PostMapping("/updateProfile")
-    public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody User user) {
-        String accessToken = extractAccessToken(authorizationHeader);
-        String email = user.getEmail();
-        String username = user.getUsername();
-        return educatorAuthenticationService.updateProfile(accessToken, email, username);
-    }
+    private final CourseService courseService;
 
     private String extractAccessToken(String authorizationHeader) {
         // Assuming a Bearer token is used, extract the token value
@@ -30,4 +26,18 @@ public class EducatorController {
             throw new IllegalArgumentException("Invalid Authorization header");
         }
     }
+    @PostMapping("/updateProfile")
+    public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody User user) {
+        String accessToken = extractAccessToken(authorizationHeader);
+        String email = user.getEmail();
+        String username = user.getUsername();
+        return educatorAuthenticationService.updateProfile(accessToken, email, username);
+    }
+
+    @PostMapping("/createCourse")
+    public ResponseEntity<Course> createCourse(@RequestBody Course course) {
+        return courseService.createCourse(course);
+    }
+
+
 }
