@@ -6,4 +6,7 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     Course findByCourseId(String courseId);
+    Course findByEducatorId(String educatorId);
+
+    Course deleteByEducatorId(String educatorId);
 }

@@ -3,8 +3,10 @@ package com.etta.edtech.controller;
 import com.etta.edtech.model.Course;
 import com.etta.edtech.model.Enrolled;
 import com.etta.edtech.model.User;
+import com.etta.edtech.repository.EnrolledRepository;
 import com.etta.edtech.service.CourseService;
 import com.etta.edtech.service.UserAuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserAuthenticationService userAuthenticationService;
+    private final EnrolledRepository enrolledRepository;
     private final CourseService courseService;
 
     private String extractAccessToken(String authorizationHeader) {
@@ -43,10 +46,23 @@ public class UserController {
     }
 
     @PostMapping("/joinClass")
-    public ResponseEntity<Enrolled> joinClass(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody Course course) {
+    public ResponseEntity<String> joinClass(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody Course course) {
         String accessToken = extractAccessToken(authorizationHeader);
         String courseId = course.getCourseId();
         return courseService.joinClass(accessToken, courseId);
     }
+
+    @GetMapping("/ifEnrolled/{cognitoUserId}")
+    public Enrolled ifEnrolled(@PathVariable String cognitoUserId) {
+        return enrolledRepository.findByCognitoUserId(cognitoUserId);
+    }
+
+    @Transactional
+    @DeleteMapping("/deleteEnrolled/{cognitoUserId}")
+    public void deleteEnrolled(@PathVariable String cognitoUserId) {
+        enrolledRepository.deleteByCognitoUserId(cognitoUserId);
+    }
+
+
 
 }

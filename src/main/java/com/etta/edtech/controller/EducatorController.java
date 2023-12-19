@@ -1,13 +1,17 @@
 package com.etta.edtech.controller;
 
 import com.etta.edtech.model.Course;
+import com.etta.edtech.model.Enrolled;
 import com.etta.edtech.model.User;
 import com.etta.edtech.service.CourseService;
 import com.etta.edtech.service.EducatorAuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/educator")
@@ -37,6 +41,22 @@ public class EducatorController {
     @PostMapping("/createCourse")
     public ResponseEntity<Course> createCourse(@RequestBody Course course) {
         return courseService.createCourse(course);
+    }
+
+    @GetMapping("/getAllEnrolled/{educatorId}")
+    public List<Enrolled> getAllEnrolled(@PathVariable String educatorId) {
+        return courseService.getAllEnrolled(educatorId);
+    }
+
+    @GetMapping("/getCourseByEducatorId/{educatorId}")
+    public Course getCourseById(@PathVariable String educatorId) {
+        return courseService.getCourseById(educatorId);
+    }
+
+    @Transactional
+    @DeleteMapping("/deleteCourse/{educatorId}")
+    public void deleteCourse(@PathVariable String educatorId){
+        courseService.deleteCourse(educatorId);
     }
 
 
