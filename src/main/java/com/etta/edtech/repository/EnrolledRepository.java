@@ -8,7 +8,7 @@ import java.util.List;
 public interface EnrolledRepository extends JpaRepository<Enrolled, Integer> {
     Enrolled findByCognitoUserId(String cognitoUserId);
     List<Enrolled> findAllByCourse_EducatorId(String educatorId);
-    List<Enrolled> deleteAllByCourse_EducatorId(String educatorId);
+    void deleteAllByCourse_EducatorId(String educatorId);
     Boolean existsByCognitoUserId(String cognitoUserId);
     void deleteByCognitoUserId(String cognitoUserId);
 }
