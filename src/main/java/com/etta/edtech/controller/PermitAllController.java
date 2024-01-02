@@ -1,27 +1,29 @@
 package com.etta.edtech.controller;
 
 import com.etta.edtech.model.Compiler;
+import com.etta.edtech.model.Lesson;
+import com.etta.edtech.repository.LessonRepository;
+import com.etta.edtech.service.AdminService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/permitAll")
-public class CompilerController {
+public class PermitAllController {
 
-
+    private final AdminService adminService;
+    private final LessonRepository lessonRepository;
     @PostMapping("/compiler")
     public String compiler(@RequestBody Compiler compiler) throws InterruptedException, ExecutionException {
         //compiler.setLanguage("nodejs");
@@ -56,8 +58,15 @@ public class CompilerController {
         }
     }
 
+    @GetMapping("/lesson/{id}")
+    public ResponseEntity<Optional<Lesson>> getLessonById(@PathVariable Integer id) {
+        return adminService.getLessonById(id);
+    }
 
-
+    @GetMapping("/lessons")
+    public ResponseEntity<List<Lesson>> getAllLessons() {
+        return ResponseEntity.ok(lessonRepository.findAll());
+    }
 
 
 
