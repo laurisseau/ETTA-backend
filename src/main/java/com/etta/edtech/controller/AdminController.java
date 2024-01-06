@@ -2,12 +2,14 @@ package com.etta.edtech.controller;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.etta.edtech.model.Lesson;
+import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonRepository;
 import com.etta.edtech.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -16,35 +18,30 @@ import java.util.Optional;
 public class AdminController {
 
     private final AdminService adminService;
-    private final LessonRepository lessonRepository;
     @PostMapping("/createLesson")
     public ResponseEntity<Lesson> createLesson(@RequestBody Lesson lesson) {
         return adminService.createLesson(lesson);
     }
+    @GetMapping("/lesson/{id}")
+    public ResponseEntity<Optional<Lesson>> getLessonById(@PathVariable Integer id) {
+        return adminService.getLessonById(id);
+    }
     @DeleteMapping("/deleteLesson/{id}")
-    public String deleteLesson(@PathVariable Integer id) {
-        lessonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with id: " + id));
-
-        lessonRepository.deleteById(id);
-
-        return "deleted";
+    public String deleteLessonById(@PathVariable Integer id) {
+        return adminService.deleteLessonById(id);
+    }
+    @PutMapping("/updateLesson/{id}")
+    public ResponseEntity<Lesson> updateLessonById(@PathVariable Integer id, @RequestBody Lesson updatedLesson) {
+        return adminService.updateLessonById(id, updatedLesson);
+    }
+    @PostMapping("/addPage")
+    public ResponseEntity<LessonPage> addLessonPage(@RequestBody LessonPage lessonPage){
+        return adminService.addPage(lessonPage);
     }
 
-    @PutMapping("/updateLesson/{id}")
-    public ResponseEntity<Lesson> updateLesson(@PathVariable Integer id, @RequestBody Lesson updatedLesson) {
-        Lesson existingLesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with id: " + id));
-
-        existingLesson.setName(updatedLesson.getName());
-        existingLesson.setSlug(updatedLesson.getSlug());
-        existingLesson.setLanguage(updatedLesson.getLanguage());
-        existingLesson.setSubscription(updatedLesson.getSubscription());
-        existingLesson.setSubscriptionId(updatedLesson.getSubscriptionId());
-        existingLesson.setDescription(updatedLesson.getDescription());
-
-        Lesson savedLesson = lessonRepository.save(existingLesson);
-        return ResponseEntity.ok(savedLesson);
+    @GetMapping("/lessonPages/{id}")
+    public ResponseEntity<List<LessonPage>> getAllLessonPages(@PathVariable Integer id) {
+        return adminService.getAllLessonPages(id);
     }
 
 }

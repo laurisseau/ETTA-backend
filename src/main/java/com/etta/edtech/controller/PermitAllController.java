@@ -58,11 +58,6 @@ public class PermitAllController {
         }
     }
 
-    @GetMapping("/lesson/{id}")
-    public ResponseEntity<Optional<Lesson>> getLessonById(@PathVariable Integer id) {
-        return adminService.getLessonById(id);
-    }
-
     @GetMapping("/lessons")
     public ResponseEntity<List<Lesson>> getAllLessons() {
         return ResponseEntity.ok(lessonRepository.findAll());

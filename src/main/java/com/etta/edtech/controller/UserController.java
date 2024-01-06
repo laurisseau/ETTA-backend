@@ -1,17 +1,17 @@
 package com.etta.edtech.controller;
 
-import com.etta.edtech.model.Course;
-import com.etta.edtech.model.Enrolled;
-import com.etta.edtech.model.User;
+import com.etta.edtech.model.*;
 import com.etta.edtech.repository.EnrolledRepository;
 import com.etta.edtech.service.CourseService;
 import com.etta.edtech.service.UserAuthenticationService;
+import com.etta.edtech.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,6 +20,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserAuthenticationService userAuthenticationService;
+    private final UserService userService;
     private final EnrolledRepository enrolledRepository;
     private final CourseService courseService;
 
@@ -61,6 +62,16 @@ public class UserController {
     @DeleteMapping("/deleteEnrolled/{cognitoUserId}")
     public void deleteEnrolled(@PathVariable String cognitoUserId) {
         enrolledRepository.deleteByCognitoUserId(cognitoUserId);
+    }
+
+    @GetMapping("/lesson/{id}")
+    public ResponseEntity<Optional<Lesson>> getLessonById(@PathVariable Integer id) {
+        return userService.getLessonById(id);
+    }
+
+    @GetMapping("/lessonPages/{id}")
+    public ResponseEntity<List<LessonPage>> getAllLessonPages(@PathVariable Integer id) {
+        return userService.getAllLessonPages(id);
     }
 
 

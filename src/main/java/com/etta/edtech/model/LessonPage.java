@@ -11,21 +11,22 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Lesson {
-
+public class LessonPage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+
+
     @Column
-    private String name;
-    private String subscription;
-    private String subscriptionId;
-    private int numOfPages;
-    private String language;
-    private String description;
-    private String slug;
-    public Lesson(){
+    private int PageNum;
+    private int lessonId;
+    private String header;
+    private String lessonInfo;
+    private String task;
+    private String editorLanguage;
+    private String editorValue;
+    public LessonPage(){
 
     }
 }
