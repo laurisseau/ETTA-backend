@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LessonPageRepository extends JpaRepository<LessonPage, Integer> {
-    List<LessonPage> findAllByLessonId(Integer lessonId);
+    List<LessonPage> findAllByLessonId(int lessonId);
+    LessonPage findByPageNum(int pageNum);
 }

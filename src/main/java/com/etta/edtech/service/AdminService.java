@@ -49,11 +49,48 @@ public class AdminService {
         return "deleted";
     }
 
-    public  ResponseEntity<LessonPage> addPage(LessonPage lessonPage){
-        return ResponseEntity.ok(lessonPageRepository.save(lessonPage));
+    public ResponseEntity<String> addPage(LessonPage lessonPage){
+
+        LessonPage pageNumExist = lessonPageRepository.findByPageNum(lessonPage.getPageNum());
+
+        if(pageNumExist != null){
+            return ResponseEntity.badRequest().body("Page number has to be unique.");
+        }
+
+        int currentPageNum = lessonPage.getPageNum();
+        int lessonId = lessonPage.getLessonId();
+        Lesson lesson = lessonRepository.findById(lessonId);
+
+        lesson.setNumOfPages(currentPageNum);
+
+        lessonRepository.save(lesson);
+
+        lessonPageRepository.save(lessonPage);
+
+        return ResponseEntity.ok("created Successfully");
+
     }
 
     public ResponseEntity<List<LessonPage>> getAllLessonPages(Integer id){
         return ResponseEntity.ok(lessonPageRepository.findAllByLessonId(id));
+    }
+
+    public ResponseEntity<Optional<LessonPage>> getLessonPageById(Integer id){
+        return ResponseEntity.ok(lessonPageRepository.findById(id));
+    }
+
+    public ResponseEntity<Optional<LessonPage>> updateLessonPageById
+            (Integer id, LessonPage updatedLessonPage){
+
+        LessonPage existingLessonPage = lessonPageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson Page not found with id: " + id));
+
+        existingLessonPage.setPageNum(updatedLessonPage.getPageNum());
+        existingLessonPage.setHeader(updatedLessonPage.getHeader());
+        existingLessonPage.setTask(updatedLessonPage.getTask());
+        existingLessonPage.setEditorValue(updatedLessonPage.getEditorValue());
+
+        LessonPage savedLessonPage = lessonPageRepository.save(existingLessonPage);
+        return ResponseEntity.ok(Optional.of(savedLessonPage));
     }
 }

@@ -16,10 +16,10 @@ public class LessonPage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
+    @Column(unique = true)
+    private int pageNum;
 
     @Column
-    private int PageNum;
     private int lessonId;
     private String header;
     private String lessonInfo;

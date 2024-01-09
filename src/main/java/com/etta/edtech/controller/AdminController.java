@@ -1,9 +1,7 @@
 package com.etta.edtech.controller;
 
-import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.etta.edtech.model.Lesson;
 import com.etta.edtech.model.LessonPage;
-import com.etta.edtech.repository.LessonRepository;
 import com.etta.edtech.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +33,7 @@ public class AdminController {
         return adminService.updateLessonById(id, updatedLesson);
     }
     @PostMapping("/addPage")
-    public ResponseEntity<LessonPage> addLessonPage(@RequestBody LessonPage lessonPage){
+    public ResponseEntity<String> addLessonPage(@RequestBody LessonPage lessonPage){
         return adminService.addPage(lessonPage);
     }
 
@@ -44,4 +42,14 @@ public class AdminController {
         return adminService.getAllLessonPages(id);
     }
 
+    @GetMapping("/lessonPage/{id}")
+    public ResponseEntity<Optional<LessonPage>> getLessonPageById(@PathVariable Integer id){
+        return adminService.getLessonPageById(id);
+    }
+
+    @PutMapping("/lessonPage/{id}")
+    public ResponseEntity<Optional<LessonPage>> updateLessonPageById
+            (@PathVariable Integer id, @RequestBody LessonPage updatedLessonPage){
+        return adminService.updateLessonPageById(id, updatedLessonPage);
+    }
 }
