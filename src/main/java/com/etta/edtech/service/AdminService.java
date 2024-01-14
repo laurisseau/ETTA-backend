@@ -49,6 +49,15 @@ public class AdminService {
         return "deleted";
     }
 
+    public String deletePageById(Integer id){
+        lessonPageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with id: " + id));
+
+        lessonPageRepository.deleteById(id);
+
+        return "deleted";
+    }
+
     public ResponseEntity<String> addPage(LessonPage lessonPage){
 
         LessonPage pageNumExist = lessonPageRepository.findByPageNum(lessonPage.getPageNum());

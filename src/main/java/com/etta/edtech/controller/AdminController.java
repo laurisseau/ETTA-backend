@@ -28,6 +28,12 @@ public class AdminController {
     public String deleteLessonById(@PathVariable Integer id) {
         return adminService.deleteLessonById(id);
     }
+
+    @DeleteMapping("/deletePage/{id}")
+    public String deletePageById(@PathVariable Integer id) {
+        return adminService.deletePageById(id);
+    }
+
     @PutMapping("/updateLesson/{id}")
     public ResponseEntity<Lesson> updateLessonById(@PathVariable Integer id, @RequestBody Lesson updatedLesson) {
         return adminService.updateLessonById(id, updatedLesson);
