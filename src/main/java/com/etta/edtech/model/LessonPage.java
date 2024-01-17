@@ -19,13 +19,18 @@ public class LessonPage {
     @Column(unique = true)
     private int pageNum;
 
+    @Column(columnDefinition = "TEXT")
+    private String lessonInfo;
+
+    @Column(columnDefinition = "TEXT")
+    private String editorValue;
+
     @Column
     private int lessonId;
     private String header;
-    private String lessonInfo;
     private String task;
     private String editorLanguage;
-    private String editorValue;
+
     public LessonPage(){
 
     }
