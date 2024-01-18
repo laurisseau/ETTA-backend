@@ -54,7 +54,7 @@ public class AdminController {
     }
 
     @PutMapping("/lessonPage/{id}")
-    public ResponseEntity<Optional<LessonPage>> updateLessonPageById
+    public ResponseEntity<String> updateLessonPageById
             (@PathVariable Integer id, @RequestBody LessonPage updatedLessonPage){
         return adminService.updateLessonPageById(id, updatedLessonPage);
     }

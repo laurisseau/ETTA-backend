@@ -16,8 +16,8 @@ public class LessonPage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = true)
-    private int pageNum;
+
+
 
     @Column(columnDefinition = "TEXT")
     private String lessonInfo;
@@ -25,12 +25,16 @@ public class LessonPage {
     @Column(columnDefinition = "TEXT")
     private String editorValue;
 
-    @Column
-    private int lessonId;
-    private String header;
+    @Column(columnDefinition = "TEXT")
     private String task;
-    private String editorLanguage;
 
+    @ManyToOne
+    @JoinColumn(name = "lesson_id")
+    private Lesson lessonId;
+
+    @Column
+    private String header;
+    private int pageNum;
     public LessonPage(){
 
     }

@@ -5,6 +5,7 @@ import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonPageRepository;
 import com.etta.edtech.repository.LessonRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,8 @@ public class UserService {
         return ResponseEntity.ok(lessonRepository.findById(id));
     }
 
-    public ResponseEntity<List<LessonPage>> getAllLessonPages(Integer id){
-        return ResponseEntity.ok(lessonPageRepository.findAllByLessonId(id));
+    public ResponseEntity<List<LessonPage>> getAllLessonPages(Integer id, Sort sort){
+
+        return ResponseEntity.ok(lessonPageRepository.findAllByLessonIdId(id, sort));
     }
 }

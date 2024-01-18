@@ -6,6 +6,7 @@ import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonPageRepository;
 import com.etta.edtech.repository.LessonRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -60,19 +61,23 @@ public class AdminService {
 
     public ResponseEntity<String> addPage(LessonPage lessonPage){
 
-        LessonPage pageNumExist = lessonPageRepository.findByPageNum(lessonPage.getPageNum());
+        Lesson lesson = lessonPage.getLessonId();
 
-        if(pageNumExist != null){
-            return ResponseEntity.badRequest().body("Page number has to be unique.");
+        int lessonId = lesson.getId();
+
+        List<LessonPage>  allLessonPages = lessonPageRepository.findAllByLessonIdId(lessonId);
+
+        for(int i = 0; i < allLessonPages.size(); i++){
+            if(lessonPage.getPageNum() == allLessonPages.get(i).getPageNum()){
+                return ResponseEntity.badRequest().body("Page number has to be unique.");
+            }
         }
 
-        int currentPageNum = lessonPage.getPageNum();
-        int lessonId = lessonPage.getLessonId();
-        Lesson lesson = lessonRepository.findById(lessonId);
+        Lesson findLesson = lessonRepository.findById(lessonId);
 
-        lesson.setNumOfPages(currentPageNum);
+        findLesson.setNumOfPages(allLessonPages.size() + 1);
 
-        lessonRepository.save(lesson);
+        lessonRepository.save(findLesson);
 
         lessonPageRepository.save(lessonPage);
 
@@ -81,25 +86,33 @@ public class AdminService {
     }
 
     public ResponseEntity<List<LessonPage>> getAllLessonPages(Integer id){
-        return ResponseEntity.ok(lessonPageRepository.findAllByLessonId(id));
+        Sort sort = Sort.by(Sort.Order.asc("pageNum"));
+        return ResponseEntity.ok(lessonPageRepository.findAllByLessonIdId(id, sort));
     }
 
     public ResponseEntity<Optional<LessonPage>> getLessonPageById(Integer id){
         return ResponseEntity.ok(lessonPageRepository.findById(id));
     }
 
-    public ResponseEntity<Optional<LessonPage>> updateLessonPageById
+    public ResponseEntity<String> updateLessonPageById
             (Integer id, LessonPage updatedLessonPage){
+
+        LessonPage existingLessonPageNum = lessonPageRepository.findByPageNum(updatedLessonPage.getPageNum());
+
+        if(existingLessonPageNum != null){
+            return ResponseEntity.badRequest().body("Cannot have duplicate page numbers.");
+        }
 
         LessonPage existingLessonPage = lessonPageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson Page not found with id: " + id));
 
         existingLessonPage.setPageNum(updatedLessonPage.getPageNum());
         existingLessonPage.setHeader(updatedLessonPage.getHeader());
+        existingLessonPage.setLessonInfo(updatedLessonPage.getLessonInfo());
         existingLessonPage.setTask(updatedLessonPage.getTask());
         existingLessonPage.setEditorValue(updatedLessonPage.getEditorValue());
 
         LessonPage savedLessonPage = lessonPageRepository.save(existingLessonPage);
-        return ResponseEntity.ok(Optional.of(savedLessonPage));
+        return ResponseEntity.ok("Lesson page updated");
     }
 }

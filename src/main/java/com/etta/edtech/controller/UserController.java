@@ -7,6 +7,7 @@ import com.etta.edtech.service.UserAuthenticationService;
 import com.etta.edtech.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,7 +72,8 @@ public class UserController {
 
     @GetMapping("/lessonPages/{id}")
     public ResponseEntity<List<LessonPage>> getAllLessonPages(@PathVariable Integer id) {
-        return userService.getAllLessonPages(id);
+        Sort sort = Sort.by(Sort.Order.asc("pageNum"));
+        return userService.getAllLessonPages(id, sort);
     }
 
 
