@@ -97,12 +97,6 @@ public class AdminService {
     public ResponseEntity<String> updateLessonPageById
             (Integer id, LessonPage updatedLessonPage){
 
-        LessonPage existingLessonPageNum = lessonPageRepository.findByPageNum(updatedLessonPage.getPageNum());
-
-        if(existingLessonPageNum != null){
-            return ResponseEntity.badRequest().body("Cannot have duplicate page numbers.");
-        }
-
         LessonPage existingLessonPage = lessonPageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson Page not found with id: " + id));
 
@@ -112,7 +106,23 @@ public class AdminService {
         existingLessonPage.setTask(updatedLessonPage.getTask());
         existingLessonPage.setEditorValue(updatedLessonPage.getEditorValue());
 
-        LessonPage savedLessonPage = lessonPageRepository.save(existingLessonPage);
+        // Check page number uniqueness
+        if (!isPageNumberUnique(updatedLessonPage.getLessonId().getId(), updatedLessonPage.getPageNum())) {
+            return ResponseEntity.badRequest().body("Page number has to be unique.");
+        }
+
+        lessonPageRepository.save(existingLessonPage);
+
         return ResponseEntity.ok("Lesson page updated");
+    }
+
+    private boolean isPageNumberUnique(int lessonId, int updatedPageNum) {
+        List<LessonPage> allLessonPages = lessonPageRepository.findAllByLessonIdId(lessonId);
+
+        long count = allLessonPages.stream()
+                .filter(page -> page.getPageNum() == updatedPageNum)
+                .count();
+
+        return count <= 1;
     }
 }
