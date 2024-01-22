@@ -1,6 +1,8 @@
 package com.etta.edtech.service;
 
 import com.etta.edtech.config.AuthenticationConfig;
+import com.etta.edtech.exceptions.InvalidTokenException;
+import com.etta.edtech.model.ErrorMessage;
 import com.etta.edtech.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +15,16 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class UserAuthenticationService {
 
     private final AuthenticationConfig authenticationConfig;
-    public User findUser(String accessToken) {
 
-        try {
+    public User findUser(String accessToken) throws NotAuthorizedException {
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -34,9 +33,9 @@ public class UserAuthenticationService {
                     .credentialsProvider(() -> awsCredentials)
                     .build();
 
-            GetUserResponse response = cognitoClient.getUser(builder -> builder
-                    .accessToken(accessToken)
-                    .build());
+        GetUserResponse response = cognitoClient.getUser(builder -> builder
+                .accessToken(accessToken)
+                .build());
 
             // Extract specific user attributes
             List<AttributeType> userAttributes = response.userAttributes();
@@ -55,12 +54,31 @@ public class UserAuthenticationService {
 
 
             return userDetails;
-        } catch (CognitoIdentityProviderException e) {
-            User errorResult = new User();
-            errorResult.setError(e.awsErrorDetails().errorMessage());
-            return errorResult;
-        }
+
+
     }
+
+    public boolean verifyUser(String accessToken) {
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
+        Region awsRegion = Region.of("us-east-1");
+
+        CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.builder()
+                .region(awsRegion)
+                .credentialsProvider(() -> awsCredentials)
+                .build();
+
+        try {
+            cognitoClient.getUser(builder -> builder
+                    .accessToken(accessToken)
+                    .build());
+
+        } catch (NotAuthorizedException e) {
+            return false;
+        }
+        return true;
+    }
+
+
     private String getUserAttribute(List<AttributeType> userAttributes, String attributeName) {
         return userAttributes.stream()
                 .filter(attribute -> attributeName.equals(attribute.name()))
@@ -97,7 +115,6 @@ public class UserAuthenticationService {
         attrs.add(attributeTypeUserName);
         attrs.add(attributeTypeRole);
 
-        try {
 
             SignUpRequest signUpRequest = SignUpRequest.builder()
                     .userAttributes(attrs)
@@ -110,14 +127,12 @@ public class UserAuthenticationService {
 
             return ResponseEntity.ok("User has been signed up");
 
-        }catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
 
     }
 
     public ResponseEntity<Object> login(String userName, String password) {
-        try {
+
 
             Map<String,String> authParameters = new HashMap<>();
             authParameters.put("USERNAME", userName);
@@ -145,15 +160,11 @@ public class UserAuthenticationService {
 
             return ResponseEntity.ok(userDetails);
 
-        } catch(CognitoIdentityProviderException e) {
-            String errorMessage = e.awsErrorDetails().errorMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
 
     }
 
     public ResponseEntity<String> forgotPassword(String email) {
-        try {
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -173,13 +184,11 @@ public class UserAuthenticationService {
 
 
             return ResponseEntity.ok("Password reset code sent successfully");
-        } catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
     }
 
     public ResponseEntity<String> resetPassword(String email, String newPassword, String resetConfirmationCode) {
-        try {
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -198,14 +207,12 @@ public class UserAuthenticationService {
             cognitoClient.confirmForgotPassword(confirmForgotPasswordRequest);
 
             return ResponseEntity.ok("Password reset successfully");
-        } catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
     }
 
 
     public ResponseEntity<Object> updateProfile(String accessToken, String email, String username) {
-        try{
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -227,10 +234,7 @@ public class UserAuthenticationService {
             User userDetails = findUser(accessToken);
 
             return ResponseEntity.ok(userDetails);
-        }catch(CognitoIdentityProviderException e){
-            String errorMessage = e.awsErrorDetails().errorMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
+
     }
 
 

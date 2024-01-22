@@ -15,9 +15,10 @@ import java.util.Date;
 @Setter
 public class ErrorMessage {
 
-    private HttpStatus httpStatus;
-    private Date date;
+    private HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+    private Date date = new Date();
     private String message;
+    private String exceptionName;
     private StackTraceElement[] lineError;
 
     public ErrorMessage(){
@@ -28,6 +29,7 @@ public class ErrorMessage {
         return "ErrorMessage{" +
                 "\n httpStatus= " + httpStatus +
                 ",\n date= " + date +
+                ",\n exceptionName= " + exceptionName +
                 ",\n message= '" + message + '\'' +
                 ",\n lineError= " + Arrays.toString(lineError) +
                 '}';

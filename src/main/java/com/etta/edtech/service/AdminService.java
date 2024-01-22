@@ -1,6 +1,7 @@
 package com.etta.edtech.service;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
+import com.etta.edtech.exceptions.DuplicatePageNumberException;
 import com.etta.edtech.model.Lesson;
 import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonPageRepository;
@@ -69,7 +70,7 @@ public class AdminService {
 
         for(int i = 0; i < allLessonPages.size(); i++){
             if(lessonPage.getPageNum() == allLessonPages.get(i).getPageNum()){
-                return ResponseEntity.badRequest().body("Page number has to be unique.");
+                throw new DuplicatePageNumberException("Page number has to be unique.");
             }
         }
 

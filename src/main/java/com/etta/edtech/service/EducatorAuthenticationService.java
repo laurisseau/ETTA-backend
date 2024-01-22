@@ -1,6 +1,7 @@
 package com.etta.edtech.service;
 
 import com.etta.edtech.config.AuthenticationConfig;
+import com.etta.edtech.exceptions.InvalidTokenException;
 import com.etta.edtech.model.Educator;
 import com.etta.edtech.model.User;
 import lombok.AllArgsConstructor;
@@ -25,9 +26,10 @@ public class EducatorAuthenticationService {
     private final AuthenticationConfig authenticationConfig;
     public Educator findEducator(String accessToken) {
 
-        try {
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
+
+
 
             CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.builder()
                     .region(awsRegion)
@@ -55,11 +57,28 @@ public class EducatorAuthenticationService {
 
 
             return educatorDetails;
-        } catch (CognitoIdentityProviderException e) {
-            Educator errorResult = new Educator();
-            errorResult.setError(e.awsErrorDetails().errorMessage());
-            return errorResult;
+
+
+    }
+
+    public boolean verifyUser(String accessToken) {
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
+        Region awsRegion = Region.of("us-east-1");
+
+        CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.builder()
+                .region(awsRegion)
+                .credentialsProvider(() -> awsCredentials)
+                .build();
+
+        try {
+            cognitoClient.getUser(builder -> builder
+                    .accessToken(accessToken)
+                    .build());
+
+        } catch (NotAuthorizedException e) {
+            return false;
         }
+        return true;
     }
     private String getEducatorAttribute(List<AttributeType> educatorAttributes, String attributeName) {
         return educatorAttributes.stream()
@@ -97,7 +116,7 @@ public class EducatorAuthenticationService {
         attrs.add(attributeTypeUserName);
         attrs.add(attributeTypeRole);
 
-        try {
+
 
             SignUpRequest signUpRequest = SignUpRequest.builder()
                     .userAttributes(attrs)
@@ -111,14 +130,12 @@ public class EducatorAuthenticationService {
 
             return ResponseEntity.ok("Educator has been signed up");
 
-        }catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
 
     }
 
     public ResponseEntity<Object> login(String userName, String password) {
-        try {
+
 
             Map<String,String> authParameters = new HashMap<>();
             authParameters.put("USERNAME", userName);
@@ -146,15 +163,12 @@ public class EducatorAuthenticationService {
 
             return ResponseEntity.ok(educatorDetails);
 
-        } catch(CognitoIdentityProviderException e) {
-            String errorMessage = e.awsErrorDetails().errorMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
+
 
     }
 
     public ResponseEntity<String> forgotPassword(String email) {
-        try {
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -174,13 +188,11 @@ public class EducatorAuthenticationService {
 
 
             return ResponseEntity.ok("Password reset code sent successfully");
-        } catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
     }
 
     public ResponseEntity<String> resetPassword(String email, String newPassword, String resetConfirmationCode) {
-        try {
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -199,14 +211,12 @@ public class EducatorAuthenticationService {
             cognitoClient.confirmForgotPassword(confirmForgotPasswordRequest);
 
             return ResponseEntity.ok("Password reset successfully");
-        } catch (CognitoIdentityProviderException e) {
-            return ResponseEntity.badRequest().body(e.awsErrorDetails().errorMessage());
-        }
+
     }
 
 
     public ResponseEntity<Object> updateProfile(String accessToken, String email, String username) {
-        try{
+
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -228,10 +238,7 @@ public class EducatorAuthenticationService {
             Educator educatorDetails = findEducator(accessToken);
 
             return ResponseEntity.ok(educatorDetails);
-        }catch(CognitoIdentityProviderException e){
-            String errorMessage = e.awsErrorDetails().errorMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
+
     }
 
 
