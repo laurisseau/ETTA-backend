@@ -6,6 +6,7 @@ import com.etta.edtech.model.Lesson;
 import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonPageRepository;
 import com.etta.edtech.repository.LessonRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,10 @@ public class AdminService {
         return ResponseEntity.ok(savedLesson);
     }
 
+    @Transactional
     public String deleteLessonById(Integer id){
+        lessonPageRepository.deleteAllByLessonIdId(id);
+
         lessonRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with id: " + id));
 

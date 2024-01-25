@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
             handleGeneralException(ex, exceptionName, errorMessage, stackTraceElements);
         }
 
-        System.out.println(errorMessage.toString() + "global");
+        System.out.println(errorMessage.toString());
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 

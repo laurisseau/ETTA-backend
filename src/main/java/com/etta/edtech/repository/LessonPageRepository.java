@@ -12,6 +12,8 @@ import java.util.List;
 public interface LessonPageRepository extends JpaRepository<LessonPage, Integer> {
     List<LessonPage> findAllByLessonIdId(int lessonId, Sort sort);
 
+    void deleteAllByLessonIdId(int lessonId);
+
     List<LessonPage> findAllByLessonIdId(int lessonId);
     LessonPage findByPageNum(int pageNum);
 }
