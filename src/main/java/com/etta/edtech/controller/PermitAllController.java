@@ -1,5 +1,6 @@
 package com.etta.edtech.controller;
 
+import com.etta.edtech.config.CompilerConfig;
 import com.etta.edtech.model.Compiler;
 import com.etta.edtech.model.Lesson;
 import com.etta.edtech.repository.LessonRepository;
@@ -26,6 +27,7 @@ public class PermitAllController {
 
     private final AdminService adminService;
     private final LessonRepository lessonRepository;
+    private final CompilerConfig compilerConfig;
     @PostMapping("/compiler")
     public String compiler(@RequestBody Compiler compiler) throws InterruptedException, ExecutionException {
         String apiUrl = "https://api.jdoodle.com/v1/execute";
@@ -34,8 +36,12 @@ public class PermitAllController {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, String> requestPayload = new HashMap<>();
-        requestPayload.put("clientId", "16ed8bf5307927a66d64cbc90685cb91");
-        requestPayload.put("clientSecret", "ad9fde873027f087038f1167b64b10b1aaa861b463b17e46bf86a29234436b0");
+        //requestPayload.put("clientId", "16ed8bf5307927a66d64cbc90685cb91");
+        //requestPayload.put("clientSecret", "ad9fde873027f087038f1167b64b10b1aaa861b463b17e46bf86a29234436b0");
+
+        requestPayload.put("clientId", compilerConfig.getClientId());
+        requestPayload.put("clientSecret", compilerConfig.getClientSecret());
+
         requestPayload.put("script", compiler.getCode());
         requestPayload.put("language", compiler.getLanguage());
         requestPayload.put("versionIndex", "0");
