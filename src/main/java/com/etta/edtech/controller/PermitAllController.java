@@ -36,8 +36,6 @@ public class PermitAllController {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, String> requestPayload = new HashMap<>();
-        //requestPayload.put("clientId", "16ed8bf5307927a66d64cbc90685cb91");
-        //requestPayload.put("clientSecret", "ad9fde873027f087038f1167b64b10b1aaa861b463b17e46bf86a29234436b0");
 
         requestPayload.put("clientId", compilerConfig.getClientId());
         requestPayload.put("clientSecret", compilerConfig.getClientSecret());
@@ -50,15 +48,12 @@ public class PermitAllController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        try {
-            CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
-                    restTemplate.postForObject(apiUrl, request, String.class));
 
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() ->
+                restTemplate.postForObject(apiUrl, request, String.class));
+
+        return future.get();
+
     }
 
     @GetMapping("/lessons")
