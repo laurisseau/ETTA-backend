@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17  # Use Java 17 runtime
+    commands:
+      - echo "Installing Gradle"
+      - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
+      - unzip -q gradle.zip
+      - export PATH=$PATH:$PWD/gradle-8.4/bin
+  pre_build:
+    commands:
+      - echo "Executing pre-build commands"
+      # Any pre-build commands you need, such as installing dependencies, setting up environment, etc.
+  build:
+    commands:
+      - echo "Executing build commands"
+      - gradle clean build
+  post_build:
+    commands:
+      - echo "Executing post-build commands"
+      # Any post-build commands such as running tests, packaging artifacts, deploying, etc.
+
+artifacts:
+  files:
+    - build/libs/edtech-0.0.1-SNAPSHOT.jar  # Adjust the path according to your Gradle build output
