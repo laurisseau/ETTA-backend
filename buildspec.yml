@@ -13,11 +13,11 @@ phases:
     commands:
       - echo "Executing pre-build commands"
       # Any pre-build commands you need, such as installing dependencies, setting up environment, etc.
-      - export spring.datasource.url=jdbc:mysql://etta-dev.cl2gg26am2wz.us-east-1.rds.amazonaws.com:3306/etta-dev
-      - export spring.datasource.username=admin
-      - export spring.datasource.password=Camrin0208
-      - export spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-      - export spring.jpa.hibernate.ddl-auto=update
+      - export "spring.datasource.url=jdbc:mysql://etta-dev.cl2gg26am2wz.us-east-1.rds.amazonaws.com:3306/etta-dev"
+      - export "spring.datasource.username=admin"
+      - export "spring.datasource.password=Camrin0208"
+      - export "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect"
+      - export "spring.jpa.hibernate.ddl-auto=update"
   build:
     commands:
       - echo "Executing build commands"
