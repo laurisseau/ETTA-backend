@@ -20,6 +20,11 @@ phases:
         - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
+      - echo $DB_URL
+      - echo $DB_USERNAME
+      - echo $DB_PASSWORD
+      - echo $DB_PASSWORD
+      - echo $DB_DRIVER
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - export spring_datasource_url=$DB_URL
