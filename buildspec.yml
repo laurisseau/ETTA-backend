@@ -16,7 +16,7 @@ phases:
         - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
-      - echo $TEST
+      - echo  $AWS_DEFAULT_REGION
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
