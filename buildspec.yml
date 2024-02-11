@@ -4,27 +4,28 @@ phases:
   install:
     runtime-versions:
       java: corretto17  # Use Java 17 runtime
+      docker: 18
     commands:
       - echo "Installing Gradle"
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
       - unzip -q gradle.zip
       - export PATH=$PATH:$PWD/gradle-8.4/bin
-  pre_build:
-    commands:
-      - echo "Executing pre-build commands"
-      # Any pre-build commands you need, such as installing dependencies, setting up environment, etc.
-      - $(aws ecr get-login --no-include-email --region us-east-1)
-      - REPOSITORY_URI=public.ecr.aws/x7m8g5i3/etta-ecr-docker
+    pre_build:
+      commands:
+        - echo Logging in to Amazon ECR...
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
-      # Docker build and push steps
-      - echo "Building Docker image"
-      - docker build -t $REPOSITORY_URI:latest .
-      - echo "Pushing Docker image to ECR"
-      - docker push $REPOSITORY_URI:latest
+      - echo Building Docker image...
+      - docker build -t etta-ecr-docker .
+      - echo Tagging Docker image...
+      - docker tag etta-ecr-docker:latest public.ecr.aws/x7m8g5i3/etta-ecr-docker:latest
+      - echo Pushing Docker image to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws/x7m8g5i3
+      - docker push public.ecr.aws/x7m8g5i3/etta-ecr-docker:latest
   post_build:
     commands:
       - echo "Executing post-build commands"
