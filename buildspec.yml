@@ -13,11 +13,18 @@ phases:
     commands:
       - echo "Executing pre-build commands"
       # Any pre-build commands you need, such as installing dependencies, setting up environment, etc.
+      - $(aws ecr get-login --no-include-email --region us-east-1)
+      - REPOSITORY_URI=public.ecr.aws/x7m8g5i3/etta-ecr-docker
   build:
     commands:
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
+      # Docker build and push steps
+      - echo "Building Docker image"
+      - docker build -t $REPOSITORY_URI:latest .
+      - echo "Pushing Docker image to ECR"
+      - docker push $REPOSITORY_URI:latest
   post_build:
     commands:
       - echo "Executing post-build commands"
