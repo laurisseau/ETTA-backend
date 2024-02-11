@@ -26,17 +26,17 @@ phases:
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
       - echo Building Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
+      - docker build -t $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest .
       - echo Tagging Docker image...
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $REPOSITORY_URI:latest $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:$IMAGE_TAG
       #- echo Pushing Docker image to Amazon ECR...
       #- aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws/x7m8g5i3
       #- docker push public.ecr.aws/x7m8g5i3/etta-ecr-docker:latest
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest
+      - docker push $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:$IMAGE_TAG
       - echo write definitions file...
       - printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
