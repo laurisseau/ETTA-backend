@@ -4,7 +4,6 @@ phases:
   install:
     runtime-versions:
       java: corretto17  # Use Java 17 runtime
-      docker: 18
     commands:
       - echo "Installing Gradle"
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
