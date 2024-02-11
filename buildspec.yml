@@ -9,8 +9,10 @@ phases:
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
       - unzip -q gradle.zip
       - export PATH=$PATH:$PWD/gradle-8.4/bin
+      - export DB_URL=$DB_URL
     pre_build:
       commands:
+        - export DB_USERNAME=$DB_USERNAME
         - echo log in to Amazon ECR...
         - aws --version
         - echo $AWS_DEFAULT_REGION
@@ -26,9 +28,7 @@ phases:
       - echo $DB_DRIVER
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
-      - export DB_URL=$DB_URL
       - ./gradlew clean build
-      - export DB_USERNAME=$DB_USERNAME
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo Building Docker image...
       - docker build -t $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest .
