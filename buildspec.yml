@@ -27,7 +27,7 @@ phases:
       - export spring_datasource_password=$DB_PASSWORD
       - export spring_datasource_driver_class_name=$DB_DRIVER
       - export spring_jpa_properties_hibernate_dialect=org.hibernate.dialect.MySQLDialect
-      - export spring_jpa_hibernate_ddl-auto=update
+      - export spring_jpa_hibernate_ddl_auto=update
       - ./gradlew clean build
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo Building Docker image...
