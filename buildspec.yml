@@ -18,21 +18,22 @@ phases:
         - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
         - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
         - IMAGE_TAG=${COMMIT_HASH:=latest}
-        #- aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
-      - echo $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
+      - export spring_datasource_url=$DB_URL
+      - export spring_datasource_username=$DB_USERNAME
+      - export spring_datasource_password=$DB_PASSWORD
+      - export spring_datasource_driver_class_name=$DB_DRIVER
+      - export spring_jpa_properties_hibernate_dialect=org.hibernate.dialect.MySQLDialect
+      - export spring_jpa_hibernate_ddl-auto=update
       - ./gradlew clean build
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo Building Docker image...
       - docker build -t $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest .
       - echo Tagging Docker image...
       - docker tag $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest
-      #- echo Pushing Docker image to Amazon ECR...
-      #- aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws/x7m8g5i3
-      #- docker push public.ecr.aws/x7m8g5i3/etta-ecr-docker:latest
   post_build:
     commands:
       - echo Build completed on `date`
