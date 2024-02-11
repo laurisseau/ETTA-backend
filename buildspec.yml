@@ -23,7 +23,6 @@ phases:
       - echo $DB_URL
       - echo $DB_USERNAME
       - echo $DB_PASSWORD
-      - echo $DB_PASSWORD
       - echo $DB_DRIVER
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
