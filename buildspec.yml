@@ -15,10 +15,9 @@ phases:
       - export PATH=$PATH:$PWD/gradle-8.4/bin
     pre_build:
       commands:
-        - echo log in to Amazon ECR...
         - aws --version
-        - echo $AWS_DEFAULT_REGION
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+        #- echo $AWS_DEFAULT_REGION
+        #- aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
         #- REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
         #- COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
         #- IMAGE_TAG=${COMMIT_HASH:=latest}
@@ -32,18 +31,23 @@ phases:
       - echo $REPOSITORY_URI
 
       - echo "Executing build commands"
+
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
+
+      - echo log in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+
       - echo Building Docker image...
       - docker build -t $DOCKER_TAG .
+
       - echo Tagging Docker image...
       - docker tag $DOCKER_TAG $DOCKER_TAG
   post_build:
     commands:
       - echo Build completed on `date`
       - docker push $DOCKER_TAG
-      - echo write definitions file...
+      #- echo write definitions file...
       #- printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
