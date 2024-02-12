@@ -9,18 +9,18 @@ phases:
     runtime-versions:
       java: corretto17  # Use Java 17 runtime
     commands:
-      - echo "Installing Gradle"
+      - echo "Installing Gradle" # Install Gradle
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
       - unzip -q gradle.zip
       - export PATH=$PATH:$PWD/gradle-8.4/bin
+
+      - echo "Installing MySQL" # Install MySQL client
+      - apt-get update
+      - apt-get install -y mysql-client
     pre_build:
       commands:
         - aws --version
-        #- echo $AWS_DEFAULT_REGION
-        #- aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
-        #- REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
-        #- COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-        #- IMAGE_TAG=${COMMIT_HASH:=latest}
+
   build:
     commands:
       - echo $DB_URL
@@ -30,6 +30,9 @@ phases:
       - echo $REPOSITORY_URI
 
       - echo "Executing build commands"
+
+      - echo Connect to the database and perform database operations
+      - mysql -u $DB_USERNAME -p$DB_PASSWORD -h $DB_URL -D etta-prod
 
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
@@ -46,8 +49,6 @@ phases:
     commands:
       - echo Build completed on `date`
       - docker push $REPOSITORY_URI:latest
-      #- echo write definitions file...
-      #- printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
