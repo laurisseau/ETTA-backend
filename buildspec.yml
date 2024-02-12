@@ -18,31 +18,33 @@ phases:
         - echo log in to Amazon ECR...
         - aws --version
         - echo $AWS_DEFAULT_REGION
-        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-        - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
-        - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-        - IMAGE_TAG=${COMMIT_HASH:=latest}
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+        #- REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker
+        #- COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+        #- IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
       - echo $DB_URL
       - echo $DB_USERNAME
       - echo $DB_PASSWORD
       - echo $DB_DRIVER
-      - export $DB_URL
+      - echo $DOCKER_TAG
+      - echo $REPOSITORY_URI
+
       - echo "Executing build commands"
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
       - echo Building Docker image...
-      - docker build -t $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest .
+      - docker build -t $DOCKER_TAG .
       - echo Tagging Docker image...
-      - docker tag $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest
+      - docker tag $DOCKER_TAG $DOCKER_TAG
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/etta-ecr-docker:latest
+      - docker push $DOCKER_TAG
       - echo write definitions file...
-      - printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      #- printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
