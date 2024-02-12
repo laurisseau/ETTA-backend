@@ -13,10 +13,6 @@ phases:
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
       - unzip -q gradle.zip
       - export PATH=$PATH:$PWD/gradle-8.4/bin
-
-      - echo "Installing MySQL" # Install MySQL client
-      - apt-get update
-      - apt-get install -y mysql-client
     pre_build:
       commands:
         - aws --version
@@ -31,8 +27,10 @@ phases:
 
       - echo "Executing build commands"
 
-      - echo Connect to the database and perform database operations
-      - mysql -u $DB_USERNAME -p$DB_PASSWORD -h $DB_URL -D etta-prod
+      - echo "Downloading application.properties from S3..."
+      - aws s3 cp s3://etta-docker-bucket/application.properties application.properties
+      - echo "Moving application.properties to the resource folder..."
+      - mv application.properties src/main/resources/
 
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
