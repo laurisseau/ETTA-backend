@@ -1,9 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    DB_URL: $DB_URL
-
 phases:
   install:
     runtime-versions:
@@ -19,12 +15,6 @@ phases:
 
   build:
     commands:
-      - echo $DB_URL
-      - echo $DB_USERNAME
-      - echo $DB_PASSWORD
-      - echo $DB_DRIVER
-      - echo $REPOSITORY_URI
-
       - echo "Executing build commands"
 
       - echo "Downloading application.properties from S3..."
