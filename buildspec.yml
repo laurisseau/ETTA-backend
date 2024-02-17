@@ -48,3 +48,5 @@ phases:
 artifacts:
   files:
     - build/libs/edtech-0.0.1-SNAPSHOT.jar  # Adjust the path according to your Gradle build output
+    - Dockerfile
+    - Dockerrun.aws.json
