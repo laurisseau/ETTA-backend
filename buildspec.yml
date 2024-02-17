@@ -9,9 +9,6 @@ phases:
       - curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle.zip
       - unzip -q gradle.zip
       - export PATH=$PATH:$PWD/gradle-8.4/bin
-    pre_build:
-      commands:
-        - aws --version
 
   build:
     commands:
@@ -22,8 +19,18 @@ phases:
       - echo "Moving application.properties to the resource folder..."
       - mv application.properties src/main/resources/
 
+      - echo "Downloading Dockerrun.aws.json from S3..."
+      - aws s3 cp s3://docker-json-run/Dockerrun.aws.json Dockerrun.aws.json
+
       - chmod +x ./gradlew  # Add this line to grant executable permissions
       - ./gradlew clean build
+
+      - echo "Creating Dockerfile..."
+      - echo "FROM openjdk:17-jdk" > Dockerfile
+      - echo "WORKDIR /app" >> Dockerfile
+      - echo "COPY build/libs/edtech-0.0.1-SNAPSHOT.jar /app/demo.jar" >> Dockerfile
+      - echo "EXPOSE 8080" >> Dockerfile
+      - echo "CMD [\"java\", \"-jar\", \"demo.jar\"]" >> Dockerfile
 
       - echo log in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI

@@ -43,6 +43,7 @@ public class SecurityFilter {
                     config.applyPermitDefaultValues();
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // Add allowed methods
                     config.addAllowedOrigin("http://localhost:3000"); // Specify your frontend URL
+                    config.addAllowedOrigin("https://www.earlytech.org");
                     return config;
                 });
             })
