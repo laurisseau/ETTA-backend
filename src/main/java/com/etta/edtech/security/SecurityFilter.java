@@ -42,15 +42,15 @@ public class SecurityFilter {
                     CorsConfiguration config = new CorsConfiguration();
                     config.applyPermitDefaultValues();
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // Add allowed methods
-                    //config.addAllowedOrigin("http://localhost:3000"); // Specify your frontend URL
-                    config.addAllowedOrigin("https://www.earlytech.org/");
+                    config.addAllowedOrigin("http://localhost:3000"); // Specify your frontend URL
+                    config.addAllowedOrigin("https://www.earlytech.org");
                     return config;
                 });
             })
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((req) -> req
                     .requestMatchers("/api/permitAll/**",
-                            "/api/auth/**")
+                            "/api/auth/**", "/")
                     .permitAll()
                     .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/educator/**").hasAuthority("ROLE_EDUCATOR")
