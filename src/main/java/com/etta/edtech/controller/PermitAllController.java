@@ -42,7 +42,7 @@ public class PermitAllController {
 
         requestPayload.put("script", compiler.getCode());
         requestPayload.put("language", compiler.getLanguage());
-        requestPayload.put("versionIndex", "0");
+        requestPayload.put("versionIndex", "3");
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(requestPayload, headers);
 
