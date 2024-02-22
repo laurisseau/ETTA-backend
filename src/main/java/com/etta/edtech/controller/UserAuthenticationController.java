@@ -14,14 +14,7 @@ public class UserAuthenticationController {
     private final UserAuthenticationService userAuthenticationService;
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody User user) {
-
-        String email = user.getEmail();
-        String username = user.getUsername();
-        String password = user.getPassword();
-        String role = "USER";
-
-        return userAuthenticationService.signUp(email, role,
-                username,  password);
+        return userAuthenticationService.signUp(user);
     }
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody User user) {

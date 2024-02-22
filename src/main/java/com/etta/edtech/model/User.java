@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
 @EqualsAndHashCode
 @AllArgsConstructor
@@ -27,6 +28,17 @@ public class User implements UserDetails {
     private String resetPassword;
     private String resetConfirmationCode;
     private String error;
+    private String studentFirstname;
+    private String studentLastname;
+    private String parentFirstname;
+    private String parentLastname;
+    private String parentPhoneNumber;
+    private String parentEmailAddress;
+    private String school;
+    private String dateJoined;
+    private String grade;
+    private String age;
+
 
     public User(){
 

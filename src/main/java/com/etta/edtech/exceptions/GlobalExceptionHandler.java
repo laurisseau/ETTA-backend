@@ -15,6 +15,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleException(Exception ex) {
 
+        System.out.println(ex);
+
         StackTraceElement[] stackTraceElements = new StackTraceElement[]{ex.getStackTrace()[0]};
         String exceptionName = ex.getClass().getSimpleName();
         ErrorMessage errorMessage = new ErrorMessage();

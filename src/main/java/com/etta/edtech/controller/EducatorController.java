@@ -1,8 +1,8 @@
 package com.etta.edtech.controller;
 
 import com.etta.edtech.model.Course;
+import com.etta.edtech.model.Educator;
 import com.etta.edtech.model.Enrolled;
-import com.etta.edtech.model.User;
 import com.etta.edtech.service.CourseService;
 import com.etta.edtech.service.EducatorAuthenticationService;
 import jakarta.transaction.Transactional;
@@ -31,11 +31,9 @@ public class EducatorController {
         }
     }
     @PostMapping("/updateProfile")
-    public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody User user) {
+    public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody Educator educator) {
         String accessToken = extractAccessToken(authorizationHeader);
-        String email = user.getEmail();
-        String username = user.getUsername();
-        return educatorAuthenticationService.updateProfile(accessToken, email, username);
+        return educatorAuthenticationService.updateProfile(accessToken, educator);
     }
 
     @PostMapping("/createCourse")
@@ -45,6 +43,7 @@ public class EducatorController {
 
     @GetMapping("/getAllEnrolled/{educatorId}")
     public List<Enrolled> getAllEnrolled(@PathVariable String educatorId) {
+
         return courseService.getAllEnrolled(educatorId);
     }
 

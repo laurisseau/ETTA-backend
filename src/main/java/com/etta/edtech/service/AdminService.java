@@ -2,6 +2,7 @@ package com.etta.edtech.service;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.etta.edtech.exceptions.DuplicatePageNumberException;
+import com.etta.edtech.exceptions.EmptyFieldException;
 import com.etta.edtech.model.Lesson;
 import com.etta.edtech.model.LessonPage;
 import com.etta.edtech.repository.LessonPageRepository;
@@ -22,6 +23,10 @@ public class AdminService {
     private final LessonRepository lessonRepository;
     private final LessonPageRepository lessonPageRepository;
     public ResponseEntity<Lesson> createLesson(Lesson lesson){
+        if(lesson.getName().isEmpty() || lesson.getSubscription().isEmpty()
+                || lesson.getLanguage().isEmpty() || lesson.getDescription().isEmpty()){
+            throw new EmptyFieldException("Please fill out all required fields");
+        }
         return ResponseEntity.ok(lessonRepository.save(lesson));
     }
     public ResponseEntity<Optional<Lesson>> getLessonById(Integer id){
@@ -58,6 +63,16 @@ public class AdminService {
     public String deletePageById(Integer id){
         lessonPageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with id: " + id));
+
+        LessonPage lessonPage = lessonPageRepository.findLessonPageById(id);
+
+        Lesson lesson = lessonPage.getLessonId();
+
+        int lessonId = lesson.getId();
+
+        List<LessonPage>  allLessonPages = lessonPageRepository.findAllByLessonIdId(lessonId);
+
+        lesson.setNumOfPages(allLessonPages.size() - 1);
 
         lessonPageRepository.deleteById(id);
 
@@ -110,6 +125,7 @@ public class AdminService {
         existingLessonPage.setLessonInfo(updatedLessonPage.getLessonInfo());
         existingLessonPage.setTask(updatedLessonPage.getTask());
         existingLessonPage.setEditorValue(updatedLessonPage.getEditorValue());
+        existingLessonPage.setSubHeader(updatedLessonPage.getSubHeader());
 
         // Check page number uniqueness
         if (!isPageNumberUnique(updatedLessonPage.getLessonId().getId(), updatedLessonPage.getPageNum())) {

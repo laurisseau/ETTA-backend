@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
 @EqualsAndHashCode
 @AllArgsConstructor
@@ -27,6 +28,8 @@ public class Educator implements UserDetails {
     private String resetPassword;
     private String resetConfirmationCode;
     private String error;
+    private String school;
+    private Date dateJoined;
     public Educator(){
 
     }

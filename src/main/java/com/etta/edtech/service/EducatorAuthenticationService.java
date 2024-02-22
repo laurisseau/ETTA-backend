@@ -15,6 +15,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class EducatorAuthenticationService {
     private final AuthenticationConfig authenticationConfig;
     public Educator findEducator(String accessToken) {
+
 
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
@@ -46,7 +48,7 @@ public class EducatorAuthenticationService {
             String preferredUsername = getEducatorAttribute(educatorAttributes, "preferred_username");
             String email = getEducatorAttribute(educatorAttributes, "email");
             String role = getEducatorAttribute(educatorAttributes, "custom:role");
-
+            String school = getEducatorAttribute(educatorAttributes, "custom:school");
 
             Educator educatorDetails = new Educator();
             educatorDetails.setAccessToken(accessToken);
@@ -54,6 +56,7 @@ public class EducatorAuthenticationService {
             educatorDetails.setEmail(email);
             educatorDetails.setUsername(preferredUsername);
             educatorDetails.setRole(role);
+            educatorDetails.setSchool(school);
 
 
             return educatorDetails;
@@ -87,8 +90,7 @@ public class EducatorAuthenticationService {
                 .findFirst()
                 .orElse(null);
     }
-    public ResponseEntity<String> signUp(String email, String role, String username,
-                                         String password) {
+    public ResponseEntity<String> signUp(Educator educator) {
 
         CognitoIdentityProviderClient identityProviderClient = CognitoIdentityProviderClient.builder()
                 .region(Region.US_EAST_1)
@@ -97,21 +99,33 @@ public class EducatorAuthenticationService {
 
         AttributeType attributeTypeEmail = AttributeType.builder()
                 .name("email")
-                .value(email)
+                .value(educator.getEmail())
                 .build();
 
         AttributeType attributeTypeUserName = AttributeType.builder()
                 .name("preferred_username")
-                .value(username)
+                .value(educator.getUsername())
                 .build();
 
         AttributeType attributeTypeRole = AttributeType.builder()
                 .name("custom:role")
-                .value(role)
+                .value("EDUCATOR")
+                .build();
+
+        AttributeType attributeTypeSchool = AttributeType.builder()
+                .name("custom:school")
+                .value(educator.getSchool())
+                .build();
+
+        AttributeType attributeDateJoined = AttributeType.builder()
+                .name("custom:dateJoined")
+                .value(String.valueOf(LocalDate.now()))
                 .build();
 
         List<AttributeType> attrs = new ArrayList<>();
 
+        attrs.add(attributeTypeSchool);
+        attrs.add(attributeDateJoined);
         attrs.add(attributeTypeEmail);
         attrs.add(attributeTypeUserName);
         attrs.add(attributeTypeRole);
@@ -120,9 +134,9 @@ public class EducatorAuthenticationService {
 
             SignUpRequest signUpRequest = SignUpRequest.builder()
                     .userAttributes(attrs)
-                    .username(email)
+                    .username(educator.getEmail())
                     .clientId(authenticationConfig.getEducatorClientId())
-                    .password(password)
+                    .password(educator.getPassword())
                     .build();
 
 
@@ -215,7 +229,7 @@ public class EducatorAuthenticationService {
     }
 
 
-    public ResponseEntity<Object> updateProfile(String accessToken, String email, String username) {
+    public ResponseEntity<Object> updateProfile(String accessToken, Educator educator){
 
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
@@ -228,8 +242,9 @@ public class EducatorAuthenticationService {
             UpdateUserAttributesRequest updateEducatorAttributesRequest = UpdateUserAttributesRequest.builder()
                     .accessToken(accessToken)
                     .userAttributes(
-                            AttributeType.builder().name("email").value(email).build(),
-                            AttributeType.builder().name("preferred_username").value(username).build()
+                            AttributeType.builder().name("email").value(educator.getEmail()).build(),
+                            AttributeType.builder().name("preferred_username").value(educator.getUsername()).build(),
+                            AttributeType.builder().name("custom:school").value(educator.getSchool()).build()
                     )
                     .build();
 

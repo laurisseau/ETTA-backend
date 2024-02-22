@@ -15,6 +15,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -44,6 +45,17 @@ public class UserAuthenticationService {
             String email = getUserAttribute(userAttributes, "email");
             String role = getUserAttribute(userAttributes, "custom:role");
 
+            String studentFirstname = getUserAttribute(userAttributes, "custom:studentFirstname");
+            String studentLastname = getUserAttribute(userAttributes, "custom:studentLastname");
+            String parentFirstname = getUserAttribute(userAttributes, "custom:parentFirstname");
+            String parentLastname = getUserAttribute(userAttributes, "custom:parentLastname");
+            String parentPhoneNumber = getUserAttribute(userAttributes, "custom:parentPhoneNumber");
+            String parentEmailAddress = getUserAttribute(userAttributes, "custom:parentEmailAddress");
+            String school = getUserAttribute(userAttributes, "custom:school");
+            String dateJoined = getUserAttribute(userAttributes, "custom:dateJoined");
+            String grade = getUserAttribute(userAttributes, "custom:grade");
+            String age = getUserAttribute(userAttributes, "custom:age");
+
 
             User userDetails = new User();
             userDetails.setAccessToken(accessToken);
@@ -51,6 +63,16 @@ public class UserAuthenticationService {
             userDetails.setEmail(email);
             userDetails.setUsername(preferredUsername);
             userDetails.setRole(role);
+            userDetails.setStudentFirstname(studentFirstname);
+            userDetails.setStudentLastname(studentLastname);
+            userDetails.setParentFirstname(parentFirstname);
+            userDetails.setParentLastname(parentLastname);
+            userDetails.setParentPhoneNumber(parentPhoneNumber);
+            userDetails.setParentEmailAddress(parentEmailAddress);
+            userDetails.setSchool(school);
+            userDetails.setDateJoined(dateJoined);
+            userDetails.setGrade(grade);
+            userDetails.setAge(age);
 
 
             return userDetails;
@@ -86,8 +108,7 @@ public class UserAuthenticationService {
                 .findFirst()
                 .orElse(null);
     }
-    public ResponseEntity<String> signUp(String email, String role, String username,
-                                         String password) {
+    public ResponseEntity<String> signUp(User user) {
 
         CognitoIdentityProviderClient identityProviderClient = CognitoIdentityProviderClient.builder()
                 .region(Region.US_EAST_1)
@@ -96,31 +117,91 @@ public class UserAuthenticationService {
 
         AttributeType attributeTypeEmail = AttributeType.builder()
                 .name("email")
-                .value(email)
+                .value(user.getEmail())
                 .build();
 
         AttributeType attributeTypeUserName = AttributeType.builder()
                 .name("preferred_username")
-                .value(username)
+                .value(user.getUsername())
                 .build();
 
         AttributeType attributeTypeRole = AttributeType.builder()
                 .name("custom:role")
-                .value(role)
+                .value("USER")
                 .build();
+
+        AttributeType attributeTypeStudentFirstname = AttributeType.builder()
+                .name("custom:studentFirstname")
+                .value(user.getStudentFirstname())
+                .build();
+
+        AttributeType attributeTypeStudentLastname = AttributeType.builder()
+                .name("custom:studentLastname")
+                .value(user.getStudentLastname())
+                .build();
+
+        AttributeType attributeTypeParentFirstname = AttributeType.builder()
+                .name("custom:parentFirstname")
+                .value(user.getParentFirstname())
+                .build();
+
+        AttributeType attributeTypeParentLastname = AttributeType.builder()
+                .name("custom:parentLastname")
+                .value(user.getParentLastname())
+                .build();
+
+        AttributeType attributeTypeParentPhoneNumber = AttributeType.builder()
+                .name("custom:parentPhoneNumber")
+                .value(user.getParentPhoneNumber())
+                .build();
+
+        AttributeType attributeTypeParentEmailAddress = AttributeType.builder()
+                .name("custom:parentEmailAddress")
+                .value(user.getParentEmailAddress())
+                .build();
+
+        AttributeType attributeTypeSchool = AttributeType.builder()
+                .name("custom:school")
+                .value(user.getSchool())
+                .build();
+
+        AttributeType attributeTypeGrade = AttributeType.builder()
+                .name("custom:grade")
+                .value(user.getGrade())
+                .build();
+
+        AttributeType attributeTypeAge = AttributeType.builder()
+                .name("custom:age")
+                .value(String.valueOf(user.getAge()))
+                .build();
+
+        AttributeType attributeDateJoined = AttributeType.builder()
+                .name("custom:dateJoined")
+                .value(String.valueOf(LocalDate.now()))
+                .build();
+
 
         List<AttributeType> attrs = new ArrayList<>();
 
         attrs.add(attributeTypeEmail);
         attrs.add(attributeTypeUserName);
         attrs.add(attributeTypeRole);
-
+        attrs.add(attributeTypeStudentFirstname);
+        attrs.add(attributeTypeStudentLastname);
+        attrs.add(attributeTypeParentFirstname);
+        attrs.add(attributeTypeParentLastname);
+        attrs.add(attributeTypeParentPhoneNumber);
+        attrs.add(attributeTypeParentEmailAddress);
+        attrs.add(attributeTypeSchool);
+        attrs.add(attributeTypeGrade);
+        attrs.add(attributeTypeAge);
+        attrs.add(attributeDateJoined);
 
             SignUpRequest signUpRequest = SignUpRequest.builder()
                     .userAttributes(attrs)
-                    .username(email)
+                    .username(user.getEmail())
                     .clientId(authenticationConfig.getUserClientId())
-                    .password(password)
+                    .password(user.getPassword())
                     .build();
 
             identityProviderClient.signUp(signUpRequest);
@@ -211,8 +292,7 @@ public class UserAuthenticationService {
     }
 
 
-    public ResponseEntity<Object> updateProfile(String accessToken, String email, String username) {
-
+    public ResponseEntity<Object> updateProfile(String accessToken, User user) {
             AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(authenticationConfig.getAccessKey(), authenticationConfig.getSecretKey());
             Region awsRegion = Region.of("us-east-1");
 
@@ -224,8 +304,19 @@ public class UserAuthenticationService {
             UpdateUserAttributesRequest updateUserAttributesRequest = UpdateUserAttributesRequest.builder()
                     .accessToken(accessToken)
                     .userAttributes(
-                            AttributeType.builder().name("email").value(email).build(),
-                            AttributeType.builder().name("preferred_username").value(username).build()
+                            AttributeType.builder().name("email").value(user.getEmail()).build(),
+                            AttributeType.builder().name("preferred_username").value(user.getUsername()).build(),
+                            AttributeType.builder().name("custom:studentFirstname").value(user.getStudentFirstname()).build(),
+                            AttributeType.builder().name("custom:studentLastname").value(user.getStudentLastname()).build(),
+                            AttributeType.builder().name("custom:parentFirstname").value(user.getParentFirstname()).build(),
+                            AttributeType.builder().name("custom:parentLastname").value(user.getParentLastname()).build(),
+                            AttributeType.builder().name("custom:parentPhoneNumber").value(user.getParentPhoneNumber()).build(),
+                            AttributeType.builder().name("custom:parentEmailAddress").value(user.getParentEmailAddress()).build(),
+                            AttributeType.builder().name("custom:school").value(user.getSchool()).build(),
+                            AttributeType.builder().name("custom:grade").value(user.getGrade()).build(),
+                            AttributeType.builder().name("custom:age").value(String.valueOf(user.getAge())).build()
+
+
                     )
                     .build();
 

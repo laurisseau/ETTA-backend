@@ -18,14 +18,7 @@ public class EducatorAuthenticationController {
     private final EducatorAuthenticationService educatorAuthenticationService;
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody Educator educator) {
-
-        String email = educator.getEmail();
-        String username = educator.getUsername();
-        String password = educator.getPassword();
-        String role = "EDUCATOR";
-
-        return educatorAuthenticationService.signUp(email, role,
-                username,  password);
+        return educatorAuthenticationService.signUp(educator);
     }
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Educator educator) {

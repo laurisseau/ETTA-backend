@@ -1,5 +1,6 @@
 package com.etta.edtech.service;
 
+import com.etta.edtech.exceptions.ClassExceptions;
 import com.etta.edtech.model.Course;
 import com.etta.edtech.model.Enrolled;
 import com.etta.edtech.model.User;
@@ -32,34 +33,33 @@ public class CourseService {
         return enrolledRepository.existsByCognitoUserId(cognitoUserId);
     }
     public ResponseEntity<String> joinClass(String accessToken, String courseId){
-        try{
-            User user = userAuthenticationService.findUser(accessToken);
 
-            String cognitoEmail = user.getEmail();
-            String cognitoName = user.getUsername();
-            String cognitoUserId = user.getSub();
+        User user = userAuthenticationService.findUser(accessToken);
 
-            if(isEnrolled(cognitoUserId)){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Already Enrolled in a class");
-            }
+        String cognitoEmail = user.getEmail();
+        String cognitoName = user.getUsername();
+        String cognitoUserId = user.getSub();
 
-            Course course = findCourse(courseId);
-            if (course == null) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("wrong class code");
-            }
-
-            Enrolled enrolled = new Enrolled();
-
-            enrolled.setCourse(course);
-            enrolled.setCognitoUserId(cognitoUserId);
-            enrolled.setCognitoName(cognitoName);
-            enrolled.setCognitoEmail(cognitoEmail);
-
-            enrolledRepository.save(enrolled);
-            return ResponseEntity.ok("You have joined a class click on the course you would like to learn about.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        if(isEnrolled(cognitoUserId)){
+            throw new ClassExceptions("Already Enrolled in a class");
         }
+
+        Course course = findCourse(courseId);
+
+        if (course == null) {
+            throw new ClassExceptions("Wrong class code");
+        }
+
+        Enrolled enrolled = new Enrolled();
+
+        enrolled.setCourse(course);
+        enrolled.setCognitoUserId(cognitoUserId);
+        enrolled.setCognitoName(cognitoName);
+        enrolled.setCognitoEmail(cognitoEmail);
+
+        enrolledRepository.save(enrolled);
+        return ResponseEntity.ok("You have joined a class click on the course you would like to learn about.");
+
     }
 
     public List<Enrolled> getAllEnrolled(String educatorId){

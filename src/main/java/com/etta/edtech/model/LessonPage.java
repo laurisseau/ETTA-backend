@@ -34,6 +34,10 @@ public class LessonPage {
 
     @Column
     private String header;
+
+    @Column
+    private String subHeader;
+
     private int pageNum;
     public LessonPage(){
 

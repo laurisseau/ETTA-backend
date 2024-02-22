@@ -42,9 +42,7 @@ public class UserController {
     @PostMapping("/updateProfile")
     public ResponseEntity<Object> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody User user) {
         String accessToken = extractAccessToken(authorizationHeader);
-        String email = user.getEmail();
-        String username = user.getUsername();
-        return userAuthenticationService.updateProfile(accessToken, email, username);
+        return userAuthenticationService.updateProfile(accessToken, user);
     }
 
     @PostMapping("/joinClass")
