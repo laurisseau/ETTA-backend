@@ -16,6 +16,7 @@ public interface LessonPageRepository extends JpaRepository<LessonPage, Integer>
 
     List<LessonPage> findAllByLessonIdId(int lessonId);
     LessonPage findByPageNum(int pageNum);
-
     LessonPage findLessonPageById(int lessonPageId);
+
+
 }

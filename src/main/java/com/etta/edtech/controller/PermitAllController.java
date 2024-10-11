@@ -5,6 +5,7 @@ import com.etta.edtech.model.Compiler;
 import com.etta.edtech.model.Lesson;
 import com.etta.edtech.repository.LessonRepository;
 import com.etta.edtech.service.AdminService;
+import com.etta.edtech.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class PermitAllController {
 
     private final AdminService adminService;
+    private final UserService userService;
     private final LessonRepository lessonRepository;
     private final CompilerConfig compilerConfig;
     @PostMapping("/compiler")
@@ -58,7 +60,8 @@ public class PermitAllController {
 
     @GetMapping("/lessons")
     public ResponseEntity<List<Lesson>> getAllLessons() {
-        return ResponseEntity.ok(lessonRepository.findAll());
+        //return ResponseEntity.ok(userService.getAllLessons());
+        return userService.getAllLessons();
     }
 
 
